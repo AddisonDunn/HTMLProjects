@@ -1,0 +1,119 @@
+<!Doctype html>
+<html>
+	<head>
+		<title>The 50 States</title>
+		<script type='text/javascript'>
+			var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
+			'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine',
+			'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 
+			'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon',
+			'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia',
+			'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+			var states2 = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE','FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME','MD', 'MA', 'MI', 
+			'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR','PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA','WA', 
+			'WV', 'WI', 'WY'];
+			var numberOfStates = 0;
+			var time = 300000;
+			var gameStarted = false;
+			function focusUp(){
+				document.getElementById('textInput').focus();
+			}
+			function focusOnStart(){
+				document.getElementById('textButton').focus();
+			}
+			function checkForAnswer(){
+				if(gameStarted)
+				{
+					var textContent = (document.getElementById('textInput').value).trim();
+					document.getElementById('typing').innerHTML = textContent;
+					if(textContent=='')
+						document.getElementById('typing').innerHTML = 'Keep Going!';
+					index = states.indexOf(textContent);
+					if(index == -1)
+					{
+						for(x = 0; x<states.length; x++)
+						{
+							if(textContent.toLowerCase() == (states[x]).toLowerCase())
+							{
+								textContent = states[x];
+								index = states.indexOf(textContent);
+							}
+						}
+					}
+					if(index == -1)
+					{
+						index = states2.indexOf(textContent);
+					}
+					if(index != -1)
+					{
+						document.getElementById('lastAnswer').innerHTML = document.getElementById('lastAnswer').innerHTML+states[index]+" ";
+						document.getElementById('textInput').value = '';
+						numberOfStates++;
+						document.getElementById('statesTextVariable').innerHTML = numberOfStates;
+						document.getElementById('tableOfStates').innerHTML+= "<li>"+states[index]+"</li>";
+						states.splice(index, 1);
+						states2.splice(index, 1);
+						if(numberOfStates==50)
+							time = -1;
+					}
+				}
+			}
+			function startClock(){
+				if(!gameStarted)
+					timing();
+			}
+			function timing(){
+				gameStarted = true
+				time = time - 1000;
+				window.setTimeout("changeTime()", 1000);
+			}
+			function changeTime(){
+				if(time==-1)
+				{
+					wonGame();
+				}
+				else
+				{
+					if(time%60000/1000 < 10)
+					{
+						document.getElementById('timerID').innerHTML = Math.floor(time/60000) + ':0' + (time%60000/1000);
+					}
+					else
+					{
+						document.getElementById('timerID').innerHTML = Math.floor(time/60000) + ':' + (time%60000/1000);
+					}
+					if(time>0)
+						timing(time);
+					else
+					{
+						document.getElementById("timerID").innerHTML = '0:00';	
+						lostGame();
+					}
+				}
+			}
+			function wonGame(){
+				alert("You Win!");
+			}
+			function lostGame(){
+				alert("Too Bad, You Lose!");
+			}
+		</script>
+		<style>
+			#centered {
+			text-align: center;
+			color: red;
+				}
+		</style>
+	</head>
+	<body onLoad="focusOnStart();">
+		<div id = "centered">Name the 50 States</div id = "centered">
+		<input type = text id = 'textInput' oninput = "checkForAnswer(); startClock();">
+		<button type = "button" id = 'textButton' onClick = 'startClock(); focusUp();' accessKey = s><u>S</u>tart</button>
+		<p id = "typing">Start!</p>
+		<p id = "lastAnswer">Progress: </p>
+		<p id = "numberOfStatesText">Number of States: <span id = 'statesTextVariable'>0</span></p>
+		<p id = "timerID">5:00</p>
+		<ol id = 'tableOfStates'>
+		</ol>
+	</body>
+</html>

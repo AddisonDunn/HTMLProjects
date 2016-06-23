@@ -1,0 +1,242 @@
+<!Doctype html>
+<html>
+	<head>
+		<title>Name All 50 Capitals</title>
+		<style>
+			#leftTitle {
+				text-align: center;
+				font-size: 18pt;
+			}
+			#timerID {
+				text-align: center;
+				font-size: 18pt;
+			}
+			#rightTitle {
+				text-align: center;
+				font-size: 18pt;
+			}
+			.US {
+				font-size: 18pt;
+				color: red;
+				font-weight: bold;
+			}
+			html, body {
+				height:100%;
+				padding:0;
+				margin:0;
+			}
+		</style>
+		<script type='text/javascript'>
+		/* START old stuff */
+		var time = 300000;
+		var extraTime = time;
+		var gameStarted = false;
+		var startPressed = false;
+		function focusUp(){
+			document.getElementById('textInput').focus();
+		}
+		function focusOnStart(){
+			document.getElementById('textButton').focus();
+		}
+		function startClock(){
+			startPressed = true;
+			if(!gameStarted)
+				timing();
+		}
+		function timing(){
+			gameStarted = true;
+			time = time - 1000;
+			window.setTimeout("changeTime()", 1000);
+		}
+		function changeTime(){
+			if(time==-1)
+			{
+				endGame();
+			}
+			else
+			{
+				if(time%60000/1000 < 10)
+				{
+					document.getElementById('timerID').innerHTML = Math.floor(time/60000) + ':0' + (time%60000/1000);
+				}
+				else
+				{
+					document.getElementById('timerID').innerHTML = Math.floor(time/60000) + ':' + (time%60000/1000);
+				}
+				if(time>0)
+					timing(time);
+				else
+				{
+					document.getElementById("timerID").innerHTML = '0:00';
+					extraTime = 0;	
+					endGame();
+				}
+			}
+		}
+
+		/* END old stuff */
+
+		var statesAndCapitals = {'alabama':['montgomery'], 'alaska':['juneau'], 'arizona':['phoenix'], 'arkansas':['little rock'], 'california':['sacramento'], 'colorado':['denver'], 'connecticut':['hartford'], 'delaware':['dover'], 'florida':['tallahassee'], 'georgia':['atlanta'], 'hawaii':['honolulu'], 'idaho':['boise'], 'illinois':['springfield'], 'indiana':['indianapolis'], 'iowa':['des moines'], 'kansas':['topeka'], 'kentucky':['frankfort'], 'louisiana':['baton rouge'], 'maine':['augusta'], 'maryland':['annapolis'], 'massachusetts':['boston'], 'michigan':['lansing'], 'minnesota':['saint paul', 'st paul', 'st. paul'], 'mississippi':['jackson'], 'missouri':['jefferson city'], 'montana':['helena'], 'nebraska':['lincoln'], 'nevada':['carson city'], 'new hampshire':['concord'], 'new jersey':['trenton'], 'new mexico':['santa fe'], 'new york':['albany'], 'north carolina':['raleigh'], 'north dakota':['bismarck'], 'ohio':['columbus'], 'oklahoma':['oklahoma city'], 'oregon':['salem'], 'pennsylvania':['harrisburg'], 'rhode island':['providence'], 'south carolina':['columbia'], 'south dakota':['pierre'], 'tennessee':['nashville'], 'texas':['austin'], 'utah':['salt lake city'], 'vermont':['montpelier'], 'virginia':['richmond'], 'washington':['olympia'], 'west virginia':['charleston'], 'wisconsin':['madison'], 'wyoming':['cheyenne'],}
+
+		var numberOfStates = 0;
+		var chosenState = null;
+		var theUberscore = 0;
+
+		function pickRandomState(){
+			chosenState = null;
+			while(chosenState==null)
+			{
+				for (var i in statesAndCapitals)
+				{
+					if(Math.random()<.02)
+					{
+						chosenState = i;
+						break;
+					}
+				}
+			}
+			//chosenState = 'minnesota'
+		}
+
+		function showNewCapital(){
+			pickRandomState();
+			var chosenStateU = fixString(chosenState);
+			document.getElementById('statePrompt').innerHTML = chosenStateU;
+		}
+
+		function showNewCapitalB(){
+			if(!startPressed)
+			{
+				pickRandomState();
+				var chosenStateU = fixString(chosenState);
+				document.getElementById('statePrompt').innerHTML = chosenStateU;
+			}
+		}
+
+		function fixString(s){
+			var sU = s.substring(0,1).toUpperCase() + s.substring(1);
+			for(x = 1; x<sU.length; x++)
+			{
+				if(sU[x] == " ")
+				{
+					sU = sU.substring(0, x+1) + s.substring(x+1, x+2).toUpperCase() + sU.substring(x+2);
+				}
+			}
+			return sU;
+		}
+		function checkForAnswer(){
+			var textContent = ((document.getElementById('textInput').value).trim()).toLowerCase();
+
+			for(x=0; x<statesAndCapitals[chosenState].length; x++)
+			{
+				if(textContent==statesAndCapitals[chosenState][x])
+				{
+					delete statesAndCapitals[chosenState];
+					numberOfStates++;
+					document.getElementById('textInput').value = '';
+					textContentU = fixString(textContent)
+					document.getElementById('theList').innerHTML+= "<li>"+textContentU+"</li>";
+					if (numberOfStates==50)
+					{
+						extraTime = time;
+						time=-1;
+					}
+					theUberscore = theUberscore + 10;
+					document.getElementById('uberscoreVariable').innerHTML = theUberscore;
+					showNewCapital();
+				}
+			}
+		}
+
+		function idkFunction(){
+			delete statesAndCapitals[chosenState];
+			numberOfStates++;
+			document.getElementById('textInput').value = '';
+			/*textContentU = fixString(textContent)
+			document.getElementById('theList').innerHTML+= "<li>"+textContentU+"</li>";*/
+			theUberscore = theUberscore - 25;
+			document.getElementById('uberscoreVariable').innerHTML = theUberscore;
+			if (numberOfStates==50)
+			{
+				extraTime = time;
+				time=-1;
+			}
+			showNewCapital();
+			focusUp();
+		}
+
+		function giveUpFunction(){
+			extraTime = time;
+			time=-1;
+		}
+
+		function endGame(){
+			var endString = "";
+			if(extraTime==0)
+				theUberscore = theUberscore - 300;
+			else
+				theUberscore = theUberscore - Math.floor((300000-extraTime)/1000);
+			if(numberOfStates==50)
+			{
+				endString = "Well done, you got'em all!";
+			}
+			else if(theUberscore<0)
+			{
+				endString = "Not good at all.";
+			}
+			else if(theUberscore<100)
+			{
+				endString = "Decent.";
+			}
+			else if(theUberscore<200)
+			{
+				endString = "Pretty good!";
+			}
+			else if(theUberscore<300)
+			{
+				endString = "Alright. I'm impressed.";
+			}
+			else
+			{
+				endString = "Congradulations! You've mastered a useless skill!";
+			}
+			if(extraTime == 0)
+			{
+				endString = endString + " You finished with " + theUberscore + " points and no time left.";
+			}
+			else
+			{
+				endString = endString + " You finished with " + theUberscore + " points and " + (extraTime/1000) + " seconds left";
+			}
+			alert(endString);
+		}
+
+		/*function myAIF(e){
+			e.value;
+		}*/
+		</script>
+	</head>
+	<body onLoad='focusOnStart();'>
+		<table style='width: 100%; height: 100%;'>
+			<td style='width: 50%; background-color: #0066CC; vertical-align:top;'>
+				<p id='leftTitle'>Name the Capitals</p>
+				<p id = "timerID">5:00</p>
+				<center>
+				<div id='statePrompt'>Hit the Start button!</div>
+				<!-- <input type=text id='textInput' onInput='myAIF(this)'> -->
+				<input type=text id='textInput' onInput='checkForAnswer();'>
+				<button type='button' id = 'textButton' onClick = 'showNewCapitalB(); startClock(); focusUp();' accessKey = s><u>S</u>tart</button>
+				<p></p>
+				<button type='button' id = 'idkButton' onClick = 'idkFunction();' accessKey=i><u>I</u> don't know!</button>
+				<button type='button' id = 'giveUpButton' onClick = 'giveUpFunction();' accessKey=g><u>G</u>ive up!</button>
+				<p id='uberscore' class = 'US'>UBERSCORE: <span id='uberscoreVariable' class='US'>0</span></p>
+				</center>
+			</td>	
+			<td style='width: 20%; color: DarkRed; vertical-align:top;'>
+				<p id='rightTitle' class='right'>Progress</p>
+				<ol id='theList' class='right'>
+				</ol>
+			</td>
+		</table>
+	</body>
+</html>

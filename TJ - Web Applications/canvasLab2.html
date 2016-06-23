@@ -1,0 +1,368 @@
+<!Doctype html5>
+<html>
+	<head>
+		<title>Canvas Lab</title>
+		<style>
+			body {
+		        margin: 0px;
+		        padding: 0px;
+		    	}
+		    #myCanvas {
+	    		border:3px solid black;
+	    		float:left;
+	    	}
+	    	#canvasDiv {
+	    		width: 100%;
+	    	}
+	    	#radDiv {
+	    		width: 50%;
+	    	}
+		</style>
+	</head>
+	<body>
+		<div id='canvasDiv'>
+			<canvas id="myCanvas" width="10" height="10"></canvas>
+		    <script>
+		    	var canvasWidth = 1250;
+		    	var canvasHeight = 500;
+		    	myCanvas.width = canvasWidth;
+		    	myCanvas.height = canvasHeight;
+		    	function getMousePos(canvas, evt) {
+			        var rect = canvas.getBoundingClientRect();
+			        return {
+			          x: evt.clientX - rect.left,
+			          y: evt.clientY - rect.top
+			        };
+				}
+				function clearCanvas() {
+					myCanvas.width = myCanvas.width;
+				}
+				var canvas = document.getElementById('myCanvas');
+				var context = canvas.getContext('2d');
+
+				setInterval(adjust, 1);
+				var objects = [];
+				var userRadius = 50;
+				userColor = 'black';
+				var gravityBool = false;
+				var frictionBool = false;
+				var gravity = .2;
+				var friction = .4;
+				var machineBool = false;
+
+				//makeBall(500, 250, 4, 0, 75, userColor);
+				//makeBall(500, 250, 5, 0, 50, userColor);
+
+				var justClicked = 0;
+				var clicks = 0;
+				var lastX = 0;
+				var lastY = 0;
+				canvas.addEventListener('click', function(evt) {
+					if(!machineBool) {
+						clicks++;
+						var mousePos = getMousePos(canvas, evt);
+						if(clicks%2==0){
+							justClicked = 1;
+						}
+						else
+						{
+							lastX = mousePos.x;
+							lastY = mousePos.y;
+						}
+					}
+				}, false);
+
+				var currentX = 0;
+				var currentY = 0;
+				canvas.addEventListener('mousemove', function(evt) {
+					var mousePos = getMousePos(canvas, evt);
+					currentX = mousePos.x;
+					currentY = mousePos.y;
+				}, false);
+
+				var hold = false;
+				var lastBall = null;
+				canvas.addEventListener('mousedown', function(evt) {
+					hold = true;
+				}, false);
+				canvas.addEventListener('mouseup', function(evt) {
+					hold = false;
+				}, false);
+
+				function adjust() {
+					clearCanvas();
+					var x = 0;
+					for (x=0; x<objects.length; x++) {
+						var i = objects[x];
+
+						i.xi = i.xi + i.vx;
+						i.yi = i.yi + i.vy;
+
+						/*if(i.xi<=i.rad || i.xi>=canvasWidth-i.rad) {
+							i.vx = -i.vx;
+						}*/
+						if(i.xi<=i.rad) {
+							if(i.vx<0) {
+								i.vx = -i.vx;
+								if(frictionBool)
+									i.vx-=friction;
+							}
+							else
+								i.vx += .5;
+						}
+						if(i.xi>=canvasWidth-i.rad) {
+							if(i.vx>0) {
+								i.vx = -i.vx;
+								if(frictionBool)
+									i.vx+=friction;
+							}
+							else
+								i.vx-=.5;
+						}
+						if(i.yi<=i.rad) {
+							if(i.vy<0) {
+								i.vy = -i.vy;
+								if(frictionBool)
+									i.vy-=friction;
+							}
+							else
+								i.vy +=.5;
+						}
+						if(i.yi>=canvasHeight-i.rad) {
+							if(frictionBool) {
+								if(i.vy>.1)	 {
+									i.vy = -i.vy;
+									if(frictionBool)
+										i.vy+=friction;
+								}
+								else {
+									i.vy = 0;
+									i.yi = canvasHeight-i.rad;
+								}
+							}
+							else {
+								if(i.vy>0) {
+									i.vy = -i.vy;
+									if(frictionBool)
+										i.vy+=friction;
+								}
+								else
+									i.vy-=.5;
+							}
+						}
+
+						var y = 0;
+						for(y=0; y<objects.length; y++) {
+							if(x!=y) {
+								var j = objects[y];
+								//var smallerR = Math.min(i.rad, j.rad);
+								if((i.rad+j.rad)>=distanceBetween(i.xi, i.yi, j.xi, j.yi)) {
+									bounce(i, j);
+								}
+							}
+						}
+						if(gravityBool && (i.yi<(canvasHeight-i.rad))) {
+							i.vy+=gravity;
+						}
+						if(i.yi==(canvasHeight-i.rad) && i.vy==0){
+							if(i.vx>0)
+								i.vx-=friction/50;
+							if(i.vx<0)
+								i.vx+=friction/50;
+						}
+						drawBall(i);
+					}
+					if(clicks%2==1) {
+						context.beginPath();
+					    context.moveTo(lastX, lastY);
+					    context.lineTo(currentX, currentY);
+					    context.lineWidth = 1;
+					    context.strokeStyle = 'black';
+					    context.stroke();
+					    if( (currentX<lastX && currentY<lastY) || (currentX>lastX && currentY>lastY)) {
+					    	context.beginPath();
+					    	context.moveTo(currentX-5, currentY+5);
+					    	context.lineTo(currentX+5, currentY-5);
+					    	context.lineWidth = 1;
+					    	context.strokeStyle = 'black';
+					    	context.stroke();
+					    }
+					    else
+					    {
+					    	context.beginPath();
+					    	context.moveTo(currentX-5, currentY-5);
+					    	context.lineTo(currentX+5, currentY+5);
+					    	context.lineWidth = 1;
+					    	context.strokeStyle = 'black';
+					    	context.stroke();
+					    }
+
+					    drawGhostBall();
+					}
+					if(justClicked) {
+						makeBall(lastX, lastY, (lastX- currentX)/50, (lastY- currentY)/50, userRadius, userColor);
+						justClicked = 0;
+					}
+					if(hold && machineBool) {
+/*						if(lastBall){
+							var intersect = false;
+							var xArr = [];
+							var yArr = [];
+							for(var xValue = currentX-userRadius; xValue<userRadius+currentX; xValue++){
+								xArr.push(xValue);
+							}
+							for(var xValue = lastBall.xi-lastBall.rad; xValue<lastBall.rad+lastBall.xi; xValue++){
+								if(xArr.indexOf(xValue)) {
+
+								}
+							}*/
+
+							makeBall(currentX, currentY, 0, 0, userRadius, userColor);
+/*						}
+						else
+							makeBall(currentX, currentY, 0, 0, userRadius, userColor);
+						lastBall = {currentX, currentY, 0, 0, userRadius, userColor};*/
+					}
+				}
+				function bounce(i, j) {
+					var iMass = massOf(i);
+					var jMass = massOf(j);
+					/*var ivxTemp = i.vx;
+					i.vx = (2*jmass*j.vx + (imass-jmass)*i.vx)/(imass+jmass);
+					j.vx = (2*imass*ivxTemp + (jmass-imass)*j.vx)/(imass+jmass);
+
+					var ivyTemp = i.vy;
+					i.vy = (2*jmass*j.vy + (imass-jmass)*i.vy)/(imass+jmass);
+					j.vy = (2*imass*ivyTemp + (jmass-imass)*j.vy)/(imass+jmass);*/
+
+					var dx = i.xi - j.xi;
+					var dy = i.yi - j.yi;
+					var angle = Math.atan2(dy, dx);
+					var iSpeed = Math.sqrt(i.vx*i.vx + i.vy*i.vy);
+					var jSpeed = Math.sqrt(j.vx*j.vx + j.vy*j.vy);
+					var iDirection = Math.atan2(i.vy, i.vx);
+					var jDirection = Math.atan2(j.vy, j.vx);
+					var vxi = iSpeed * Math.cos(iDirection - angle);
+					var vyi = iSpeed * Math.sin(iDirection - angle);
+					var vxj = jSpeed * Math.cos(jDirection - angle);
+					var vyj = jSpeed * Math.sin(jDirection - angle);
+
+					var fvxi = ((iMass - jMass) * vxi + (jMass + jMass) * vxj)/(iMass+ jMass);
+					var fvxj = ((jMass - iMass) * vxj + (iMass + iMass) * vxi)/(iMass+ jMass);
+
+					var fvyi = vyi;
+					var fvyj = vyj;
+
+					i.vx = Math.cos(angle) * fvxi + Math.cos(angle + Math.PI/2) * fvyi;
+					i.vy = Math.sin(angle) * fvxi + Math.sin(angle + Math.PI/2) * fvyi;
+					j.vx = Math.cos(angle) * fvxj + Math.cos(angle + Math.PI/2) * fvyj;
+					j.vy = Math.sin(angle) * fvxj + Math.sin(angle + Math.PI/2) * fvyj;
+
+					if(frictionBool) {
+						var f = friction/10;
+						if(i.vx<0)
+							i.vx+=f;
+						if(i.vx>0)
+							i.vx-=f;
+						if(i.vy<0)
+							i.vy+=f;
+						if(i.vy>0)
+							i.vy-=f;
+
+						if(j.vx<0)
+							j.vx+=f;
+						if(j.vx>0)
+							j.vx-=f;
+						if(j.vy<0)
+							j.vy+=f;
+						if(j.vy>0)
+							j.vy-=f;
+					}
+
+				}
+				function massOf(i) {
+					return i.rad;
+				}
+				function distanceBetween(x1, y1, x2, y2) {
+					var d = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+					return d;
+				}
+				function makeBall(x, y, a, b, r, c) {
+					var newBall = {xi: x, yi: y, vx: a, vy: b, rad: r, col: c};
+					objects.push(newBall);
+				}
+				function drawBall(ball) {
+					context.beginPath();
+				    context.arc(ball.xi,ball.yi,ball.rad,0,2*Math.PI);
+				    context.fillStyle = ball.col;
+				    context.fill();
+				}
+				function drawGhostBall() {
+					context.beginPath();
+				    context.arc(lastX, lastY,userRadius,0,2*Math.PI);
+				    context.strokeStyle = userColor;
+				    context.lineWidth = 1;
+				    context.stroke();
+				}
+				function changeRadius() {
+					userRadius = parseInt(document.getElementById('radiusInput').value);
+				}
+				function changeColor() {
+					userColor = document.getElementById('colorInput').value;
+				}
+				function turnGravityOn() {
+					gravityBool = true;
+				}
+				function turnGravityOff() {
+					gravityBool = false;
+				}
+				function turnFrictionOn() {
+					frictionBool = true;
+				}
+				function turnFrictionOff() {
+					frictionBool = false;
+				}
+				function changeGravity() {
+					gravity = parseInt(document.getElementById('gravRange').value);
+				}
+				function changeFriction() {
+					friction = parseInt(document.getElementById('fricRange').value);
+				}
+				function turnOnMini() {
+					machineBool = true;
+					userRadius = 1;
+					document.getElementById('radiusInput').innerHTML = '1';
+				}
+				function turnOffMini() {
+					machineBool = false;
+				}
+
+		    </script>
+		</div>
+	    <div id='radDiv'>Radius:
+		    <input type=text id='radiusInput' onInput='changeRadius();'>
+		    Color:
+		    <input type=text id='colorInput' onInput='changeColor();'>
+		    Gravity?
+		    <input type=radio name=radioOne value=gravOnRadio onclick='turnGravityOn();'>On
+			<input type=radio name=radioOne value=gravOffRadio onclick='turnGravityOff();' checked>Off<br>
+			<p>
+				Friction?
+				<input type=radio name=radioTwo value=fricOnRadio onclick='turnFrictionOn()'>On
+				<input type=radio name=radioTwo value=fricOffRadio onclick='turnFrictionOff();' checked>Off<br>
+				<input type=radio name=radioTwo value=fricOnRadio onclick='turnOnMini();'>mini-Balls
+				<input type=radio name=radioTwo value=fricOffRadio onclick='turnOffMini();' checked>Balls<br>
+			</p>
+			<p>
+				Gravity:
+				<input type="range" name="gravity" id="gravRange" value=".2" min="0" max="2" step=".1" onChange="changeGravity();">
+				Friction:
+				<input type="range" name="friction" id="fricRange" value=".4" min="0" max="1" step=".1" onChange="changeFriction();">
+			</p>
+	    </div>
+	    <div id='descriptionDiv'>
+	    	<p></p>
+	    	Perfectly elastic collisions are used.
+	    </div>
+	</body>
+<html>

@@ -1,0 +1,213 @@
+<!Doctype html5>
+<html>
+	<head>
+		<title>Canvas Lab</title>
+		<style>
+			body {
+	        margin: 0px;
+	        padding: 0px;
+	    	}
+	    	#myCanvas {
+	    		border:3px solid black;
+	    		/*display: inline-block;*/
+	    		float:left;
+	    		/*width: 80%;*/
+	    	}
+	    	#colorDiv {
+	    		float: right;
+	    		width: 40px;
+	    		height: 80%;
+	    	}
+	    	#divContainer {background: white; width: 100%; float: left;}
+	    	.colorButtons {
+	    		width: 40px;
+	    		height: 40px;
+	    	}
+	    	#blackButton {
+	    		background-color: black;
+	    	}
+	    	#redButton {
+	    		background-color: red;
+	    	}
+	    	#blueButton {
+	    		background-color: blue;
+	    	}
+	    	#greenButton {
+	    		background-color: green;
+	    	}
+	    	#lavanderButton {
+	    		background-color: #9900CC;
+	    	}
+		</style>
+	</head>
+	<body>
+		<div id='divContainer'>
+			<div id='canvasDiv'>
+				<canvas id="myCanvas" width="10" height="10"></canvas>
+			    <script>
+			    	myCanvas.width = .95 * window.innerWidth;
+			    	myCanvas.height = .8 * window.innerHeight;
+				    function writeMessage(canvas, message) {
+				        var context = canvas.getContext('2d');
+				        //context.clearRect(0, 0, canvas.width, canvas.height);
+				        context.font = '18pt Calibri';
+				        context.fillStyle = 'black';
+				        context.fillText(message, 10, 25);
+				    }
+				    function getMousePos(canvas, evt) {
+				        var rect = canvas.getBoundingClientRect();
+				        return {
+				          x: evt.clientX + 100*Math.random() - rect.left,
+				          y: evt.clientY + 100*Math.random() - rect.top
+				        };
+				    }
+				    var canvas = document.getElementById('myCanvas');
+				    var context = canvas.getContext('2d');
+
+				    var lastX = 500;
+				    var lastY = 250;
+				    var clicks = 0;
+				    var but = 1;
+				    var theColor = 'black';
+
+				   	//COLORS
+				   	var red = 'red';
+				   	var black = 'black';
+				   	var blue = 'blue';
+				   	var green = 'green';
+				   	var lavander = '#9900CC';
+				   	//
+
+				    function makeStar() {
+				    	but = 1;
+				    }
+				    function makeDraw() {
+				    	but = 2;
+				    }
+				    function makeBrush() {
+				    	but = 3;
+				    }
+				    function makeCircle() {
+				    	but = 4;
+				    }
+				    function makeSand() {
+				    	but = 5;
+				    }
+
+				    var sandArray = [];
+
+				    canvas.addEventListener('mousemove', function(evt) {
+				    	for (var i in sandArray) {
+				    		var x = i[0];
+				    		var y = i[1];
+				    		context.beginPath();
+						    context.moveTo(x, y);
+						    context.lineTo(x+1, y);
+						    context.lineWidth = 1;
+						    context.strokeStyle = 'white';
+						    context.stroke();
+						    y = y-1;
+						    i[1] = y;
+						    context.beginPath();
+						    context.moveTo(x, y);
+						    context.lineTo(x+1, y);
+						    context.lineWidth = 1;
+						    context.strokeStyle = '' + theColor;
+						    context.stroke();
+				    	}
+				    	if(clicks%2==1 && but==1)
+				    	{
+						    var mousePos = getMousePos(canvas, evt);
+						    var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+						    context.beginPath();
+						    //context.rect(mousePos.x, mousePos.y, lastX-mousePos.x, lastY-mousePos.y);
+						    context.moveTo(lastX, lastY);
+						    context.lineTo(mousePos.x, mousePos.y);
+						    //context.fillStyle = 'blue';
+						    //context.fill();
+						    context.lineWidth = 1;
+						    context.strokeStyle = '' + theColor;
+						    context.stroke();
+						}
+						if(clicks%2==1 && but==2){
+							var mousePos = getMousePos(canvas, evt);
+						    var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+						    context.beginPath();
+						    context.moveTo(lastX, lastY);
+						    context.lineTo(mousePos.x, mousePos.y);
+						    lastX = mousePos.x;
+							lastY = mousePos.y;
+						    context.lineWidth = 1;
+						    context.strokeStyle = '' + theColor;
+						    context.stroke();
+						}
+						if(clicks%2==1 && but==3){
+							var mousePos = getMousePos(canvas, evt);
+						    var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+						    context.beginPath();
+						    context.moveTo(lastX, lastY);
+						    context.lineTo(mousePos.x, mousePos.y);
+						    lastX = mousePos.x;
+							lastY = mousePos.y;
+						    context.lineWidth = 10;
+						    context.strokeStyle = '' + theColor;
+						    context.stroke();
+						}
+						if(clicks%2==1 && but==4){
+							var mousePos = getMousePos(canvas, evt);
+						    var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+						    context.beginPath();
+						    context.arc(lastX,lastY,50,0,2*Math.PI);
+						    lastX = mousePos.x;
+							lastY = mousePos.y;
+						    context.lineWidth = 1;
+						    context.strokeStyle = '' + theColor;
+						    context.stroke();
+						}
+						if(clicks%2==1 && but==5){
+							var mousePos = getMousePos(canvas, evt);
+						    var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+						    context.beginPath();
+						    context.moveTo(mousePos.x, mousePos.y);
+						    context.lineTo(mousePos.x+1, mousePos.y);
+						    sandArray.push([mousePos.x, mousePos.y]);
+						    context.lineWidth = 1;
+						    context.strokeStyle = '' + theColor;
+						    context.stroke();
+						}
+					}, false);
+					canvas.addEventListener('click', function(evt) {
+						var mousePos = getMousePos(canvas, evt);
+						clicks++;
+						lastX = mousePos.x;
+						lastY = mousePos.y;
+					}, false);
+			    </script>
+			</div>
+			<div id='colorDiv'>
+				<div>
+					<button type='button' id='blackButton' class='colorButtons' onClick='theColor = black'></button>
+				</div>
+				<div>
+					<button type='button' id='redButton' class='colorButtons' onClick="theColor = red"></button>
+				</div>
+				<div>
+			    	<button type='button' id='blueButton' class='colorButtons' onClick='theColor = blue'></button>
+				</div>
+			    <div>
+			    	<button type='button' id='greenButton' class='colorButtons' onClick='theColor = green'></button>
+			    </div>
+			    <div>
+			    	<button type='button' id='lavanderButton' class='colorButtons' onClick='theColor = lavander;'></button>
+				</div>
+			</div>
+		</div>
+		<div id='buttonDiv'>
+		    <button type='button' id='starButton' onClick='makeStar();'>Star</button>
+		    <button type='button' id='drawButton' onClick='makeDraw();'>Pen</button>
+		    <button type='button' id='drawButton' onClick='makeBrush();'>Brush</button>
+		    <button type='button' id='circleButton' onClick='makeCircle();'>Circle</button>
+		    <button type='button' id='sandButton' onClick='makeSand();'>Sand</button>
+		</div>
+	</body>
+</html>

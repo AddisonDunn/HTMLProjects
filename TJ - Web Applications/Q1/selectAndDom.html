@@ -1,0 +1,77 @@
+<!Doctype html>
+<html>
+	<head>
+		<title>Select ing DOMing</title>
+		<script type='text/javascript'>
+			var compList = ['Kosek', 'Stueben', 'Torbert', 'Gabor', 'Galanos'];
+			var mathList = ['Gabriel', 'Auerbach', 'Gabor', 'Coffey'];
+			var engList = ['Laffey', 'Zupancic', 'Pollet'];
+			var mainList = ['Computer Science', 'Math', 'English'];
+			var currentList = 'nothing';
+			function makeDropdown(){
+				document.getElementById('theList').size = 1;
+			}
+			function makeListbox(){
+				document.getElementById('theList').size = 4;
+			}
+			function changeTo(arr){
+				for(x = 0; x<document.getElementById('listOne').size; x++)
+				{
+					document.getElementById('listOne').remove(0);
+				}
+				if(arr=='nothing')
+				{
+					var option = document.createElement("option");
+					option.text = 'Nothing Selected';
+					document.getElementById('listOne').add(option);
+					document.getElementById('listOne').size = 1;
+				}
+				if(arr=='compList')
+				{
+					for(x = 0; x<compList.length; x++)
+					{
+						var option = document.createElement("option");
+						option.text = compList[x];
+						document.getElementById('listOne').add(option);
+					}
+					document.getElementById('listOne').size = compList.length;
+				}
+				if(arr=='mathList')
+				{
+					for(x = 0; x<mathList.length; x++)
+					{
+						var option = document.createElement("option");
+						option.text = mathList[x];
+						document.getElementById('listOne').add(option);
+					}
+					document.getElementById('listOne').size = mathList.length;
+				}
+				if(arr=='engList')
+				{
+					for(x = 0; x<engList.length; x++)
+					{
+						var option = document.createElement("option");
+						option.text = engList[x];
+						document.getElementById('listOne').add(option);
+					}
+					document.getElementById('listOne').size = engList.length;
+				}
+			}
+
+		</script>
+	</head>
+	<body>
+		<input type=radio id='radOne' name=radioOne value=dropdownRadio onclick='makeDropdown()'>Dropdown<br>
+		<input type=radio id='radTwo' name=radioOne value=listboxRadio onclick='makeListbox()'>Listbox<br>
+ 		<select id='theList' size=1 onChange='changeTo(this.value)'>
+ 			<option value = 'nothing'>Nothing Selected</option>
+			<option value = 'compList'>Computer Science</option>
+			<option value = 'mathList'>Math</option>
+			<option value = 'engList'>English</option>
+		</select>
+		<p></p>
+		<select id='listOne' size = 1>
+			<option value = 'nullElement'>Nothing selected</option>
+		</select>
+	</body>
+</html>
